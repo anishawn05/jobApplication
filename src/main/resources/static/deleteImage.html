@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Delete Image</title>
+</head>
+<body>
+
+
+<div id="popupMessage">${popupMessage.message}</div>
+
+<script>
+        var popupMessage = document.getElementById("popupMessage");
+        popupMessage.style.display = "block";
+        setTimeout(function() {
+          popupMessage.style.display = "none";
+        }, 2000);
+    </script>
+</body>
+</html>
