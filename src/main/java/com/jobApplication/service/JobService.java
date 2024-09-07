@@ -2,29 +2,51 @@ package com.jobApplication.service;
 
 import com.jobApplication.Exception.InValidJobIdException;
 import com.jobApplication.Exception.JobNotFoundException;
+import com.jobApplication.company.Company;
+import com.jobApplication.company.CompanyRepository;
+import com.jobApplication.company.CompanyService;
 import com.jobApplication.dao.JobRepository;
 import com.jobApplication.model.Job;
 import com.jobApplication.serviceimpl.JobServiceImpliment;
+import com.jobApplication.specification.JobSpecification;
+import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
+import com.opencsv.bean.HeaderColumnNameMappingStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 public class JobService implements JobServiceImpliment {
     @Autowired
     JobRepository jobRepository;
-
+    @Autowired
+    CompanyService companyService;
     @Override
     public List<Job> getAll() {
-
         return jobRepository.findAll();
     }
+
+    @Override
+    public Job create(Job job) {
+            return jobRepository.save(job);
+
+    }
+
 
     @Override
     public List<Job> getAllBySorting(String field) {
@@ -42,10 +64,13 @@ public class JobService implements JobServiceImpliment {
     }
 
     @Override
-    public Job create(Job e) {
-        return jobRepository.save(e);
-
+    public List<Job> findByMinSalary(String minSalary, String location) {
+        Specification<Job> specification = Specification.where(JobSpecification.hasMinSalary(minSalary));
+        // .and(JobSpecification.locationLike(location));
+        return jobRepository.findAll(specification);
     }
+
+
 
     @Override
     public Job getJobById(Long id) throws InValidJobIdException {
@@ -62,13 +87,11 @@ public class JobService implements JobServiceImpliment {
 
     @Override
     public Job update(Job e, Long id) {
-
-        return  jobRepository.save(e);
+        return jobRepository.save(e);
     }
 
     @Override
     public String delete(Long id) {
-
         jobRepository.deleteById(id);
         return "return delete";
     }
@@ -94,6 +117,42 @@ public class JobService implements JobServiceImpliment {
     public List<String> getTitle() {
         List<Job> abc = jobRepository.findAll();
         return abc.stream().map(Job::getTitle).filter(a -> a.contains("English")).collect(Collectors.toList());
+    }
+
+
+    public Integer uploadFile(MultipartFile file) throws IOException {
+        Set<Job> jobs = parseCsv(file);
+        jobRepository.saveAll(jobs);
+        return jobs.size();
+    }
+
+
+
+
+    private Set<Job> parseCsv(MultipartFile file) throws IOException {
+        try (Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+            HeaderColumnNameMappingStrategy<JobCsvRepresentation> strategy =
+                    new HeaderColumnNameMappingStrategy<>();
+            strategy.setType(JobCsvRepresentation.class);
+            CsvToBean<JobCsvRepresentation> csvToBean = new CsvToBeanBuilder<JobCsvRepresentation>(reader)
+                    .withMappingStrategy(strategy)
+                    .withIgnoreEmptyLine(true)
+                    .withIgnoreLeadingWhiteSpace(true)
+                    .build();
+            return csvToBean.parse()
+                    .stream()
+                    .map(csvLine -> Job.builder()
+                            .title(csvLine.getTitle())
+                            .description(csvLine.getDescription())
+                            .minSalary(csvLine.getMSalary())
+                            .maxSalary(csvLine.getMaSalary())
+                            .location(csvLine.getLocation())
+                            .build()
+                    )
+                    .collect(Collectors.toSet());
+
+
+        }
     }
 
 

@@ -3,6 +3,7 @@ package com.jobApplication.company;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jobApplication.model.Job;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,11 +13,11 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-
+@Builder
 public class Company {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long companyId;
     private String name;
     private String description;
     @JsonIgnore

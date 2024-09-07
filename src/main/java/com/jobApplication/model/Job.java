@@ -27,6 +27,4 @@ public class Job {
    // @JsonIgnoreProperties("jobs") // Ignore the 'jobs' field in the Company class during serialization
     private Company company;
 
-
-
 }

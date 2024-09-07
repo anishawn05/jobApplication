@@ -30,4 +30,11 @@ public class JobExceptionHandler {
         JobApplicationException abc = new JobApplicationException(e.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(abc).getBody();
     }
+
+    @ExceptionHandler({EmailAlreadyInUseException.class , CheckEmailException.class})
+    public Object emailAlreadyInUseException (EmailAlreadyInUseException e){
+        abc = new JobApplicationException(e.getMessage());
+        return new ResponseEntity<>(abc,HttpStatus.CONFLICT);
+    }
 }
+

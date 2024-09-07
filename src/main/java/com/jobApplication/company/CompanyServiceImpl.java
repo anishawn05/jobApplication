@@ -37,4 +37,18 @@ public class CompanyServiceImpl implements CompanyService {
         // Save the updated company.
         return companyRepository.save(existingCompany);
     }
+
+    @Override
+    public Company findById(Long companyId) {
+        return null;
     }
+
+    public String getCompanyName(String name) {
+        Company company = companyRepository.findByName(name);
+        if (company != null) {
+            return company.getName();
+        } else {
+            return null; // or throw an exception if desired
+        }
+    }
+}

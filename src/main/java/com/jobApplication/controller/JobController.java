@@ -4,8 +4,11 @@ import com.jobApplication.Exception.InValidJobIdException;
 import com.jobApplication.Exception.JobApplicationException;
 import com.jobApplication.Exception.JobNotFoundException;
 import com.jobApplication.Exception.UpdationNotFound;
+import com.jobApplication.company.Company;
+import com.jobApplication.company.CompanyService;
 import com.jobApplication.model.Job;
 import com.jobApplication.service.JobService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -14,25 +17,38 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/v1/job")
+@RequestMapping("/api/v1/admin")
+@PreAuthorize("hasRole('ADMIN')")
+@SecurityRequirement(name = "bearerAuth")
+//@CrossOrigin(origins = "http://localhost:4200")
 public class JobController {
     @Autowired
     JobService jobService;
 
+
     @GetMapping("/getAllJob")
-    public List<Job> getAll() {
+    @PreAuthorize("hasAuthority('admin:read')")
+    public List<Job> getAllJOb() {
         return jobService.getAll();
     }
 
+    @PostMapping(value = "/create")
+    @PreAuthorize("hasAuthority('admin:create')")
+    public ResponseEntity<Job> createJob(@RequestBody Job job) {
+        Job createdJob = jobService.create(job);
+        return new ResponseEntity<>(createdJob, HttpStatus.CREATED);
+    }
+
     @GetMapping("/{field}")
+    @PreAuthorize("hasAuthority('admin:read')")
     public List<Job> getAllBySorting(@PathVariable String field) {
         return jobService.getAllBySorting(field);
     }
 
     @GetMapping("paging/{offset}/{pageSize}")
+    @PreAuthorize("hasAuthority('admin:read')")
     public Page<Job> pagination(@PathVariable int offset, @PathVariable int pageSize) {
         return jobService.paginationJob(offset, pageSize);
     }
@@ -43,12 +59,7 @@ public class JobController {
     }
 
 
-    @PostMapping(value = "/create")
-    public String createJob(@RequestBody Job e) {
-        jobService.create(e);
-        return "create successfully ";
 
-    }
 
     @GetMapping("/getById/{id}")
     public Job getJobById(@PathVariable Long id) throws InValidJobIdException {
@@ -96,8 +107,13 @@ public class JobController {
 
     @GetMapping("/getTitleOfJob")
     public List<String> getTitle() {
-        List<String> names = jobService.getTitle();
-        return names;
+        return jobService.getTitle();
+
+    }
+
+    @GetMapping("/findByMinSalary")
+    public List<Job> findByMinSalary(@RequestParam("minSalary") String minSalary, @RequestParam("location") String location) {
+        return jobService.findByMinSalary(minSalary, location);
     }
 
 

@@ -11,4 +11,6 @@ public interface CompanyService {
     Company creatCompany(Company company);
 
     Company updateCompany(Long id, Company company);
+
+    Company findById(Long companyId);
 }

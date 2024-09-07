@@ -18,4 +18,7 @@ public interface CandidateImageService {
     byte[] getImageById(Long id);
 
     List<CandidateImage> getAllImmage();
+
+
+
 }

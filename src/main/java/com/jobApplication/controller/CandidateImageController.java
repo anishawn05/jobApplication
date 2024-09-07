@@ -3,9 +3,12 @@ package com.jobApplication.controller;
 
 import com.jobApplication.Exception.ImageNotFoundException;
 import com.jobApplication.Exception.InValidJobIdException;
-import com.jobApplication.messages.PopupMessage;
+
 import com.jobApplication.model.CandidateImage;
 import com.jobApplication.service.CandidateImageServiceImpl;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,7 +21,8 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/jobApplication/images")
+@RequestMapping("/api/v1/management")
+@Tag(name = "Files")
 public class CandidateImageController {
     @Autowired
     CandidateImageServiceImpl candidateImageServiceImpl;
@@ -26,10 +30,22 @@ public class CandidateImageController {
     @PostMapping("/uploadImage")
     public ResponseEntity<?> uploadImage(@RequestParam("image") MultipartFile file) throws IOException, ImageNotFoundException {
         String img = candidateImageServiceImpl.uploadImage(file);
-        PopupMessage msg = new PopupMessage("immage upload is sucessfully uploaded");
         return ResponseEntity.status(HttpStatus.OK).body(img);
     }
-
+@Operation(
+        description = "get endpoint for manager",
+        summary = "this is a summary for management get endpoint",
+        responses = {
+                @ApiResponse(
+                        description = "success",
+                        responseCode = "200"
+                ) ,
+                @ApiResponse(
+                        description = "UnAuthorize/Invalid Token",
+                        responseCode = "403"
+                )
+        }
+)
     @GetMapping("/{fileName}")
     public ResponseEntity<?> getImage(@PathVariable String fileName) {
         byte[] fileData = candidateImageServiceImpl.getImmage(fileName);
@@ -62,10 +78,6 @@ public class CandidateImageController {
     public ResponseEntity<Void> deleteImage(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
         candidateImageServiceImpl.deleteFileById(id);
 
-        // Add the PopupMessage object to the FlashMap object.
-        redirectAttributes.addFlashAttribute("popupMessage", new PopupMessage("Image was Deleted"));
-
-        // Return a 204 No Content response.
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

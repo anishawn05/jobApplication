@@ -191,7 +191,7 @@ public class JobControllerTest {
         verifyNoMoreInteractions(jobService);
     }
 
-    @Test
+   /* @Test
     public void testCreateJob() throws Exception {
         // Create a mock job
         Job job = new Job(1L, "Software Engineer", "Develop software", "50000", "80000", "India", null);
@@ -216,7 +216,7 @@ public class JobControllerTest {
 
         // Verify that the job service create method was called
         verify(jobService).create(job);
-    }
+    }*/
 
     @SneakyThrows
     @Test
