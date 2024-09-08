@@ -21,6 +21,6 @@ public class Company {
     private String name;
     private String description;
     @JsonIgnore
-    @OneToMany (mappedBy = "company")// one company have many jobs,
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Job> jobs;
 }

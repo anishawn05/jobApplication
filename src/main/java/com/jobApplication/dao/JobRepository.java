@@ -12,7 +12,7 @@ import java.util.List;
 public interface JobRepository extends JpaRepository<Job,Long> , JpaSpecificationExecutor<Job> {
     List<Job> getBylocation(String location);
     // Native Query
-   @Query(value = "SELECT * FROM Job_Application WHERE location = :location", nativeQuery = true)
+    @Query(value = "SELECT * FROM Job_Application WHERE location = :location", nativeQuery = true)
     List<Job> getByLocationNativeQuery(String location);
 
 

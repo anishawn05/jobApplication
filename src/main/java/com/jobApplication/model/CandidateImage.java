@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "Image")
+@Table(name = "image")
 @Builder
 public class CandidateImage {
     @Id

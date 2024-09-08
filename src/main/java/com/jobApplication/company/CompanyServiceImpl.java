@@ -40,8 +40,9 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public Company findById(Long companyId) {
-        return null;
+        return companyRepository.findById(companyId).orElse(null);
     }
+
 
     public String getCompanyName(String name) {
         Company company = companyRepository.findByName(name);

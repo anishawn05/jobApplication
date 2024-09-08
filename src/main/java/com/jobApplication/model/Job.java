@@ -23,8 +23,15 @@ public class Job {
     private String minSalary;
     private String maxSalary;
     private String location;
-    @ManyToOne//Many jobs link to one company
-   // @JsonIgnoreProperties("jobs") // Ignore the 'jobs' field in the Company class during serialization
+    @ManyToOne
+    @JoinColumn(name = "company_id")
     private Company company;
+
+    @Override
+    public String toString() {
+        return "Job(id=" + id + ", title=" + title + ", description=" + description +
+                ", minSalary=" + minSalary + ", maxSalary=" + maxSalary +
+                ", location=" + location + ", company=" + (company != null ? company.getName() : "null") + ")";
+    }
 
 }

@@ -1,7 +1,10 @@
 package com.jobApplication.service;
 
+import com.jobApplication.Exception.CompanyNotFoundException;
 import com.jobApplication.Exception.InValidJobIdException;
 import com.jobApplication.Exception.JobNotFoundException;
+import com.jobApplication.Exception.UpdationNotFound;
+import com.jobApplication.audit.Auditable;
 import com.jobApplication.company.Company;
 import com.jobApplication.company.CompanyRepository;
 import com.jobApplication.company.CompanyService;
@@ -21,6 +24,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.EntityNotFoundException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -42,9 +46,18 @@ public class JobService implements JobServiceImpliment {
     }
 
     @Override
-    public Job create(Job job) {
-            return jobRepository.save(job);
+    public Job createJob(Job job, Long companyId) throws CompanyNotFoundException {
+        // Find the company by ID
+        Company company = companyService.findById(companyId);
+        if (company == null) {
+            throw new CompanyNotFoundException("Company not found with ID: " + companyId);
+        }
 
+        // Set the company for the job
+        job.setCompany(company);
+
+        // Save the job
+        return jobRepository.save(job);
     }
 
 
@@ -86,9 +99,21 @@ public class JobService implements JobServiceImpliment {
     }
 
     @Override
-    public Job update(Job e, Long id) {
-        return jobRepository.save(e);
+    public Job update(Job updatedJob, Long id) throws UpdationNotFound {
+        Job existingJob = jobRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Job not found"));
+
+        // Update fields
+        existingJob.setTitle(updatedJob.getTitle());
+        existingJob.setDescription(updatedJob.getDescription());
+        existingJob.setMinSalary(updatedJob.getMinSalary());
+        existingJob.setMaxSalary(updatedJob.getMaxSalary());
+        existingJob.setLocation(updatedJob.getLocation());
+        existingJob.setCompany(updatedJob.getCompany());
+
+        return jobRepository.save(existingJob);
     }
+
 
     @Override
     public String delete(Long id) {

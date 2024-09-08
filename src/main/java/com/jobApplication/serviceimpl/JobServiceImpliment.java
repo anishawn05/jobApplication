@@ -1,7 +1,9 @@
 package com.jobApplication.serviceimpl;
 
+import com.jobApplication.Exception.CompanyNotFoundException;
 import com.jobApplication.Exception.InValidJobIdException;
 import com.jobApplication.Exception.JobNotFoundException;
+import com.jobApplication.Exception.UpdationNotFound;
 import com.jobApplication.model.Job;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,11 +13,12 @@ import java.util.List;
 
 public interface JobServiceImpliment {
     List<Job> getAll();
-    Job create(Job job);
+    Job createJob(Job job, Long companyId) throws CompanyNotFoundException;
 
     Job getJobById(Long id) throws  InValidJobIdException;
 
-    Object update(Job e, Long id);
+    Job update(Job updatedJob, Long id) throws UpdationNotFound;
+
 
     String delete(Long id);
 

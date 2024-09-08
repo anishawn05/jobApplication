@@ -1,10 +1,9 @@
 package com.jobApplication.controller;
 
-import com.jobApplication.Exception.InValidJobIdException;
-import com.jobApplication.Exception.JobApplicationException;
-import com.jobApplication.Exception.JobNotFoundException;
-import com.jobApplication.Exception.UpdationNotFound;
+import com.jobApplication.Exception.*;
+import com.jobApplication.audit.Auditable;
 import com.jobApplication.company.Company;
+import com.jobApplication.company.CompanyController;
 import com.jobApplication.company.CompanyService;
 import com.jobApplication.model.Job;
 import com.jobApplication.service.JobService;
@@ -28,20 +27,26 @@ public class JobController {
     JobService jobService;
 
 
+
     @GetMapping("/getAllJob")
     @PreAuthorize("hasAuthority('admin:read')")
     public List<Job> getAllJOb() {
         return jobService.getAll();
     }
 
-    @PostMapping(value = "/create")
+
+    @PostMapping(value = "/create/{companyId}")
     @PreAuthorize("hasAuthority('admin:create')")
-    public ResponseEntity<Job> createJob(@RequestBody Job job) {
-        Job createdJob = jobService.create(job);
-        return new ResponseEntity<>(createdJob, HttpStatus.CREATED);
+    public ResponseEntity<Job> createJob(@RequestBody Job job, @PathVariable Long companyId) {
+        try {
+            Job createdJob = jobService.createJob(job, companyId);
+            return new ResponseEntity<>(createdJob, HttpStatus.CREATED);
+        } catch (CompanyNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
-    @GetMapping("/{field}")
+        @GetMapping("/{field}")
     @PreAuthorize("hasAuthority('admin:read')")
     public List<Job> getAllBySorting(@PathVariable String field) {
         return jobService.getAllBySorting(field);
@@ -69,16 +74,16 @@ public class JobController {
     }
 
     @PutMapping("/update/{id}")
-    public Job update(@RequestBody Job e, @PathVariable Long id) throws UpdationNotFound {
-
-        Job j = jobService.update(e, id);
-        if (j.getId() >= 100) {
-            throw new UpdationNotFound("you can't update");
+    @Auditable
+    public ResponseEntity<Job> updateJob(@RequestBody Job updatedJob, @PathVariable Long id) {
+        try {
+            Job updatedJobResponse = jobService.update(updatedJob, id);
+            return ResponseEntity.ok(updatedJobResponse);
+        } catch (UpdationNotFound e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
-        return j;
-
-
     }
+
 
     @DeleteMapping("/delete/{id}")
     public String delete(@PathVariable("id") Long id) {
